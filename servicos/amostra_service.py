@@ -16,27 +16,36 @@ class AmostraService:
         total = len(self.repo.listar_todas())
         return f"AM-{ano}-{(total + 1):04d}"
 
-    def criar_amostra(self, usuario: Usuario, descricao: str, fornecedor: str, cliente: str, responsavel_br_id: str, quantidade_pedida: int) -> Amostra:
-        # Regra: Apenas o Brasil ou Admin podem cadastrar novas amostras
+    def criar_amostra(
+        self,
+        usuario: Usuario,
+        descricao: str,
+        fornecedor: str,
+        cliente: str,
+        responsavel_br_id: str,
+        quantidade_pedida: int,
+    ) -> Amostra:
+        """Cadastra uma nova amostra no status inicial SOLICITADA.
+
+        Regra: apenas Brasil ou Admin podem cadastrar.
+        """
         if usuario.papel not in [PapelUsuario.BRASIL, PapelUsuario.ADMIN]:
             raise ErroPermissao("Apenas o escritório do Brasil pode cadastrar novas amostras.")
 
-        # O dev sênior pediu validação de entrada
         if quantidade_pedida <= 0:
             raise ValueError("A quantidade pedida deve ser maior que zero.")
         if not descricao.strip() or not fornecedor.strip():
             raise ValueError("Descrição e fornecedor são obrigatórios.")
 
         nova_amostra = Amostra(
-            id=self._gerar_id(), # Forçando o ID sequencial
+            id=self._gerar_id(),
             descricao=descricao,
             fornecedor=fornecedor,
-            cliente=cliente,
+            cliente_id=cliente,  # entidade usa cliente_id; o parâmetro mantém o nome histórico
             responsavel_br_id=responsavel_br_id,
             quantidade_pedida=quantidade_pedida,
-            status=StatusAmostra.SOLICITADA
+            status=StatusAmostra.SOLICITADA,
         )
-
         self.repo.salvar(nova_amostra)
         return nova_amostra
 

@@ -1,0 +1,21 @@
+[
+tool.ruff
+]
+line-length = 120
+target-version = "py311"
+# node_modules/ e dist/ já estão no exclude padrão do ruff.
+exclude = [".venv", "venv", "legacy/.venv"]
+
+[
+tool.ruff.lint
+]
+# Ruleset enxuto e estável: erros reais de import, de statement e de runtime.
+# E501 (comprimento de linha) fica fora para não gerar ruído em código legado.
+select = ["E4", "E7", "E9", "F"]
+
+[
+tool.pytest.ini_options
+]
+testpaths = ["testes"]
+pythonpath = ["."]
+addopts = "-q"

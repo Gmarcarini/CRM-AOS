@@ -1,6 +1,4 @@
 import sqlite3
-from dominio.entidades import Usuario
-from dominio.enums import PapelUsuario
 
 def inicializar_banco():
     # Cria (ou conecta) ao arquivo do banco de dados

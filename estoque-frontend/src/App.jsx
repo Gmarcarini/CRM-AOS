@@ -3,7 +3,7 @@ import { SetupNotebook } from './pages/Setup';
 import { Dashboard } from './pages/Dashboard';
 import { Clientes } from './pages/Clientes';
 import { Fornecedores } from './pages/Fornecedores';
-import { Pedidos } from './pages/pedidos';
+import { Pedidos } from './pages/Pedidos';
 
 export default function App() {
   const [usuarioLogado, setUsuarioLogado] = useState(null);

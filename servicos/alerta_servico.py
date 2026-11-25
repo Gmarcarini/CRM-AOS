@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List
-from repositorio.memoria import RepositorioMemoria
-from dominio.entidades import Amostra
+
 from dominio.enums import StatusAmostra
+from repositorio.memoria import RepositorioMemoria
 
 class AlertaService:
     def __init__(self, repositorio: RepositorioMemoria):

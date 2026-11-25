@@ -1,3 +1,5 @@
+# CONGELADO: protótipo Streamlit aposentado, não executar. Mantido só como referência de regra de negócio.
+
 import streamlit as st
 from repositorio.memoria import RepositorioMemoria
 from servicos.amostra_service import AmostraService
