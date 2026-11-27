@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SetupNotebook } from './pages/Setup';
 import { Dashboard } from './pages/Dashboard';
-import { Clientes } from './pages/Clientes';
+import { Clientes } from './pages/clientes.jsx';
 import { Fornecedores } from './pages/Fornecedores';
 import { Pedidos } from './pages/Pedidos';
 
