@@ -173,10 +173,11 @@ def listar_clientes():
 
 @app.post("/clientes")
 def criar_cliente(req: NovoClienteRequest, x_usuario_id: str = Header(...)):
+    usuario = _usuario_ou_401(x_usuario_id)
     try:
         dados = req.model_dump()
         dados["status"] = req.status.value
-        novo = cliente_service.criar_cliente(dados, usuario_responsavel_id=x_usuario_id)
+        novo = cliente_service.criar_cliente(dados, usuario_responsavel_id=usuario.id)
         return {"mensagem": "Cliente criado", "id": novo.id}
     except ErroValidacao as erro:
         raise HTTPException(status_code=400, detail=str(erro)) from erro
@@ -248,6 +249,8 @@ def criar_amostra(req: NovaAmostraRequest):
             quantidade_pedida=req.quantidade_pedida,
         )
         return {"mensagem": "Amostra criada", "id": nova.id}
+    except ErroPermissao as erro:
+        raise HTTPException(status_code=403, detail=str(erro)) from erro
     except ValueError as erro:
         # Origem no serviço (validação de entrada), não no repositório.
         raise HTTPException(status_code=400, detail=str(erro)) from erro
@@ -335,9 +338,11 @@ def listar_fornecedores():
 
 @app.post("/fornecedores")
 def criar_fornecedor(req: NovoFornecedorRequest, x_usuario_id: str = Header(...)):
+    usuario = _usuario_ou_401(x_usuario_id)
     try:
         dados = req.model_dump()
-        novo = fornecedor_service.criar_fornecedor(dados, usuario_responsavel_id=x_usuario_id)
+        dados["status"] = req.status.value
+        novo = fornecedor_service.criar_fornecedor(dados, usuario_responsavel_id=usuario.id)
         return {"mensagem": "Fornecedor criado", "id": novo.id}
     except ErroValidacao as erro:
         raise HTTPException(status_code=400, detail=str(erro)) from erro
@@ -383,6 +388,8 @@ def listar_pedidos():
             "amostras_ids": pedido.amostras_ids,
             "sigla_produto": pedido.sigla_produto,
             "sigla_cliente": pedido.sigla_cliente,
+            "numero_sequencial": pedido.numero_sequencial,
+            "ano_mes": pedido.ano_mes,
             "criado_por_id": pedido.criado_por_id,
             "itens": [
                 {
@@ -404,9 +411,11 @@ def listar_pedidos():
 
 @app.post("/pedidos")
 def criar_pedido(req: NovoPedidoRequest, x_usuario_id: str = Header(...)):
+    usuario = _usuario_ou_401(x_usuario_id)
     try:
         dados = req.model_dump()
-        novo = pedido_service.criar_pedido(dados, usuario_id=x_usuario_id)
+        dados["status"] = req.status.value
+        novo = pedido_service.criar_pedido(dados, usuario_id=usuario.id)
         return {"mensagem": "Pedido criado", "id": novo.id, "codigo_gerado": novo.codigo}
     except ErroValidacao as erro:
         raise HTTPException(status_code=400, detail=str(erro)) from erro
