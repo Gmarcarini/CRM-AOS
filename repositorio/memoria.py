@@ -69,6 +69,13 @@ def _copiar_pedido(pedido: Pedido) -> Pedido:
     Documentos são `dict` dentro de lista — `dict(documento)` é obrigatório.
     Sem isso, mutar `pedido.documentos[0]["nome"]` no objeto devolvido alteraria
     o estado armazenado.
+
+    TODO(Bloco E): `dict()` é cópia RASA. Hoje o documento é plano
+    (nome, caminho, data_upload), então funciona. Se alguém adicionar campo
+    aninhado — {"nome": ..., "meta": {"autor": ...}} — mutar meta["autor"] no
+    objeto devolvido alteraria o estado armazenado, e o teste atual não pegaria,
+    porque só verifica documentos[0]["nome"]. A correção é copy.deepcopy, com um
+    teste de contrato cobrindo documento com estrutura aninhada.
     """
     return replace(
         pedido,
@@ -107,6 +114,22 @@ class RepositorioMemoria:
             if usuario is None:
                 raise EntidadeNaoEncontrada("Usuário não encontrado.")
             return _copiar_usuario(usuario)
+
+    def buscar_usuario_por_email(self, email: str) -> Usuario | None:
+        """Busca por e-mail, sem diferenciar caixa.
+
+        Retorna None quando não encontra — é a única busca do sistema que
+        devolve nulo em vez de lançar EntidadeNaoEncontrada. O motivo é
+        semântico: o login pergunta "existe alguém com este e-mail?" antes de
+        decidir entre criar conta e autenticar. Lançar exceção obrigaria o
+        chamador a usar try/except para um caso normal.
+        """
+        alvo = email.strip().lower()
+        with self._lock:
+            for usuario in self._usuarios.values():
+                if usuario.email.strip().lower() == alvo:
+                    return _copiar_usuario(usuario)
+        return None
 
     def listar_usuarios(self) -> list[Usuario]:
         with self._lock:

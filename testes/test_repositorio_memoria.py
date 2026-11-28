@@ -14,7 +14,9 @@ from dominio.entidades import (
     Contato,
     ItemPedido,
     Pedido,
+    Usuario,
 )
+from dominio.enums import PapelUsuario
 from dominio.erros import EntidadeNaoEncontrada
 from repositorio.contrato import RepositorioCompleto
 from repositorio.memoria import RepositorioMemoria
@@ -187,3 +189,28 @@ def test_categoria_vazia_e_ignorada(repo):
     repo.salvar_categoria("   ")
 
     assert repo.listar_categorias() == []
+
+def _usuario(
+    nome: str = "Giovanni",
+    email: str = "giovanni@aosltd.net",
+) -> Usuario:
+    return Usuario(
+        id="u1",
+        nome=nome,
+        email=email,
+        papel=PapelUsuario.ADMIN,
+        localizacao="brasil",
+    )
+
+
+def test_buscar_usuario_por_email_ignora_caixa(repo):
+    repo.salvar_usuario(_usuario())
+
+    encontrado = repo.buscar_usuario_por_email("GIOVANNI@AOSLTD.NET")
+
+    assert encontrado is not None
+    assert encontrado.id == "u1"
+
+
+def test_buscar_usuario_por_email_inexistente_devolve_none(repo):
+    assert repo.buscar_usuario_por_email("ninguem@aosltd.net") is None

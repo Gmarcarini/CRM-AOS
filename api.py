@@ -249,10 +249,8 @@ def criar_amostra(req: NovaAmostraRequest):
             quantidade_pedida=req.quantidade_pedida,
         )
         return {"mensagem": "Amostra criada", "id": nova.id}
-    except ErroPermissao as erro:
-        raise HTTPException(status_code=403, detail=str(erro)) from erro
-    except ValueError as erro:
-        # Origem no serviço (validação de entrada), não no repositório.
+    except ErroValidacao as erro:
+        # Validação de entrada levantada pelo serviço — 400, nunca 500.
         raise HTTPException(status_code=400, detail=str(erro)) from erro
 
 
@@ -338,15 +336,12 @@ def listar_fornecedores():
 
 @app.post("/fornecedores")
 def criar_fornecedor(req: NovoFornecedorRequest, x_usuario_id: str = Header(...)):
-    usuario = _usuario_ou_401(x_usuario_id)
     try:
         dados = req.model_dump()
-        dados["status"] = req.status.value
-        novo = fornecedor_service.criar_fornecedor(dados, usuario_responsavel_id=usuario.id)
+        novo = fornecedor_service.criar_fornecedor(dados, usuario_responsavel_id=x_usuario_id)
         return {"mensagem": "Fornecedor criado", "id": novo.id}
     except ErroValidacao as erro:
         raise HTTPException(status_code=400, detail=str(erro)) from erro
-
 
 @app.put("/fornecedores/{fornecedor_id}")
 def editar_fornecedor(
@@ -411,15 +406,12 @@ def listar_pedidos():
 
 @app.post("/pedidos")
 def criar_pedido(req: NovoPedidoRequest, x_usuario_id: str = Header(...)):
-    usuario = _usuario_ou_401(x_usuario_id)
     try:
         dados = req.model_dump()
-        dados["status"] = req.status.value
-        novo = pedido_service.criar_pedido(dados, usuario_id=usuario.id)
+        novo = pedido_service.criar_pedido(dados, usuario_id=x_usuario_id)
         return {"mensagem": "Pedido criado", "id": novo.id, "codigo_gerado": novo.codigo}
     except ErroValidacao as erro:
         raise HTTPException(status_code=400, detail=str(erro)) from erro
-
 
 @app.put("/pedidos/{pedido_id}/processo")
 def mudar_processo_pedido(pedido_id: str, req: MudarProcessoRequest):

@@ -47,10 +47,10 @@ class AmostraService:
             raise ErroPermissao("Apenas o escritório do Brasil pode cadastrar novas amostras.")
 
         if quantidade_pedida <= 0:
-            raise ValueError("A quantidade pedida deve ser maior que zero.")
-
+            raise ErroValidacao("A quantidade pedida deve ser maior que zero.")
+        
         if not descricao.strip() or not fornecedor.strip():
-            raise ValueError("Descrição e fornecedor são obrigatórios.")
+            raise ErroValidacao("Descrição e fornecedor são obrigatórios.")
 
         nova_amostra = Amostra(
             id=self._gerar_id(),
